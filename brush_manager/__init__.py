@@ -23,29 +23,43 @@ bl_info = {
 }
 
 import bpy
-from . load_brushes import Load_Brushes_OT_Operator
-from . load_brushes import load_custom_brushes_handler
-from . load_brushes import load_menu_draw
-from . save_brushes import Save_Brushes_OT_Operator
-from . save_brushes import menu_draw
-from . select_brushes_menu import VIEW3D_MT_brush_menu
-import brush_manager.select_brushes_menu
+from . load_brushes import *
+from . save_brushes import *
+from . select_brushes_menu import *
+
+addon_keymaps = []
 
 def register():
     bpy.utils.register_class(Load_Brushes_OT_Operator)
     bpy.utils.register_class(Save_Brushes_OT_Operator)
-    select_brushes_menu.register()
     bpy.types.VIEW3D_MT_brush_context_menu.append(menu_draw)
     bpy.app.handlers.load_post.append(load_custom_brushes_handler)
     bpy.types.TOPBAR_MT_file.prepend(load_menu_draw)
+    bpy.utils.register_class(Brush_Menu_Items)
+    bpy.utils.register_class(BrushMenuCreatorOperator)
+    bpy.utils.register_class(VIEW3D_MT_brush_main_menu)
+    
+    # register hotkeys
+    wm = bpy.context.window_manager
+    km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
+    kmi = km.keymap_items.new('wm.call_menu', 'SPACE', 'PRESS', shift=True)
+    kmi.properties.name = "VIEW3D_MT_brush_main_menu"
+    addon_keymaps.append((km, kmi))
 
 def unregister():
     bpy.utils.unregister_class(Load_Brushes_OT_Operator)
     bpy.utils.unregister_class(Save_Brushes_OT_Operator)
-    select_brushes_menu.unregister()
     bpy.types.VIEW3D_MT_brush_context_menu.remove(menu_draw)
     bpy.app.handlers.load_post.remove(load_custom_brushes_handler)
     bpy.types.TOPBAR_MT_file.remove(load_menu_draw)
+    bpy.utils.unregister_class(BrushMenuCreatorOperator)
+    bpy.utils.unregister_class(VIEW3D_MT_brush_main_menu)
+    bpy.utils.unregister_class(Brush_Menu_Items)
+    
+    # unregister hotkeys
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
 
 if __name__ == '__main__':
     register()

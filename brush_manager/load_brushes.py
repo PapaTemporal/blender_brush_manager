@@ -15,6 +15,7 @@ import os
 import bpy
 from bpy.app.handlers import persistent
 from sys import platform
+from . select_brushes_menu import BrushMenuCreatorOperator
     
 class Load_Brushes_OT_Operator(bpy.types.Operator):
     bl_idname = "view3d.load_custom_brushes"
@@ -40,6 +41,8 @@ class Load_Brushes_OT_Operator(bpy.types.Operator):
             if file.endswith(".blend"):
                 with bpy.data.libraries.load(filepath + file, link = False) as (data_from, data_to):
                     data_to.brushes = [name for name in data_from.brushes if name not in current_brushes]
+
+        bpy.ops.sculpt.brush_menu_items_operator()
         return {'FINISHED'}
 
 @persistent
@@ -62,6 +65,8 @@ def load_custom_brushes_handler(empty):
         if file.endswith(".blend"):
             with bpy.data.libraries.load(filepath + file, link = False) as (data_from, data_to):
                 data_to.brushes = [name for name in data_from.brushes if name not in current_brushes]
+
+    bpy.ops.sculpt.brush_menu_items_operator()
     return {'FINISHED'}
 
 def load_menu_draw(self, context):
@@ -70,3 +75,60 @@ def load_menu_draw(self, context):
     layout.separator()
 
     layout.operator("view3d.load_custom_brushes", text="Reload Custom Brushes")
+
+class Brush_Menu_Items(bpy.types.Operator):
+    """Generic Operator"""
+    bl_idname = "sculpt.brush_menu_items_operator" 
+    bl_label = "Brush Menu Items"
+    
+    brush_collection = {'a':[],
+                        'b':[],
+                        'c':[],
+                        'd':[],
+                        'e':[],
+                        'f':[],
+                        'g':[],
+                        'h':[],
+                        'i':[],
+                        'j':[],
+                        'k':[],
+                        'l':[],
+                        'm':[],
+                        'n':[],
+                        'o':[],
+                        'p':[],
+                        'q':[],
+                        'r':[],
+                        's':[],
+                        't':[],
+                        'u':[],
+                        'v':[],
+                        'w':[],
+                        'x':[],
+                        'y':[],
+                        'z':[],
+                        '0':[],
+                        '1':[],
+                        '2':[],
+                        '3':[],
+                        '4':[],
+                        '5':[],
+                        '6':[],
+                        '7':[],
+                        '8':[],
+                        '9':[]
+                        }
+                        
+    def execute(self, context):
+        brushes = bpy.data.brushes
+        collection = self.brush_collection
+        
+        for brush in brushes:
+            if brush.use_paint_sculpt:
+                b_start_letter = brush.name[0]
+                collection[b_start_letter.lower()].append(brush.name)
+            
+        bpy.data.scenes['Scene']['brush_collection'] = collection
+
+        bpy.ops.sculpt.brush_menu_creator_operator()
+        return {'FINISHED'}
