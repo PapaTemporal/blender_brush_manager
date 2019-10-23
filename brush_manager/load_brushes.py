@@ -22,15 +22,9 @@ class Load_Brushes_OT_Operator(bpy.types.Operator):
     bl_description = "Load custom brushes from /2.81/datafiles/brushes"
     
     def execute(self, context):
-        filepath = ""
-        if platform == "win32":
-            filepath = "./"
-            filepath = os.path.abspath(filepath)
-            filepath += "\\2.81\\datafiles\\brushes\\"
-        if platform == "linux" or platform == "linux2" or platform == "darwin":
-            filepath = os.getcwd()
-            filepath = os.path.dirname(filepath)
-            filepath += "/Resources/2.81/datafiles/brushes/"
+        preferences = context.preferences
+        addon_prefs = preferences.addons['brush_manager'].preferences
+        filepath = addon_prefs.savepath
         current_brushes = []
         
         for brush in bpy.data.brushes:
@@ -45,15 +39,9 @@ class Load_Brushes_OT_Operator(bpy.types.Operator):
 
 @persistent
 def load_custom_brushes_handler(empty):
-    filepath = ""
-    if platform == "win32":
-        filepath = "./"
-        filepath = os.path.abspath(filepath)
-        filepath += "\\2.81\\datafiles\\brushes\\"
-    if platform == "linux" or platform == "linux2" or platform == "darwin":
-        filepath = os.getcwd()
-        filepath = os.path.dirname(filepath)
-        filepath += "/Resources/2.81/datafiles/brushes/"
+    preferences = bpy.context.preferences
+    addon_prefs = preferences.addons['brush_manager'].preferences
+    filepath = addon_prefs.savepath
     current_brushes = []
     
     for brush in bpy.data.brushes:

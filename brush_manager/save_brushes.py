@@ -21,19 +21,15 @@ class Save_Brushes_OT_Operator(bpy.types.Operator):
     bl_label = "Save Custom Brushes"
     bl_description = "Save custom brushes to /2.81/datafiles/brushes"
 
-    filename: bpy.props.StringProperty()
     brush_name: bpy.props.StringProperty()
     
     def execute(self, context):
-        filepath = ""
-        if platform == "win32":
-            filepath = "./"
-            filepath = os.path.abspath(filepath)
-            filepath += "\\2.81\\datafiles\\brushes\\"
-        if platform == "linux" or platform == "linux2" or platform == "darwin":
-            filepath = os.getcwd()
-            filepath = os.path.dirname(filepath)
-            filepath += "/Resources/2.81/datafiles/brushes/" + self.filename
+        preferences = context.preferences
+        addon_prefs = preferences.addons['brush_manager'].preferences
+        filepath = addon_prefs.savepath
+        print("FILEPATH FROM SAVE OPERATOR: %s" % (filepath))
+        filepath += str(self.brush_name).translate ({ord(c): "_" for c in "!@#$%^&*()[]{};:,./<>?\|`~-=+"})
+        filepath += "_brush.blend"
         brush_pack = [context.blend_data.brushes[self.brush_name]]
         brush_pack = set(brush_pack)
         bpy.data.libraries.write(filepath, brush_pack)
@@ -50,5 +46,4 @@ def menu_draw(self, context):
         layout.separator()
 
         op = layout.operator('view3d.save_custom_brushes', text = "Save " + brush.name)
-        op.filename = brush.name + "_brush.blend"
         op.brush_name = brush.name

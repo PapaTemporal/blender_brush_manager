@@ -25,10 +25,75 @@ import bpy
 from . load_brushes import *
 from . save_brushes import *
 from . select_brushes_menu import *
+from bpy.types import AddonPreferences
+from bpy.props import StringProperty
+from sys import platform
+import os
+from os import path
+
+class CustomBrushManagerPreferences(AddonPreferences):
+    bl_idname = __name__
+
+    app_data = os.getenv('APPDATA')
+    user_prefs = app_data + '\\Blender Foundation\\Blender\\brush_manager.txt'
+    filepath = ""
+
+    if not os.path.exists(user_prefs):
+        if platform == "win32":
+            filepath = "./"
+            filepath = os.path.abspath(filepath)
+            filepath += "\\2.81\\datafiles\\brushes\\"
+        if platform == "linux" or platform == "linux2" or platform == "darwin":
+            filepath = os.getcwd()
+            filepath = os.path.dirname(filepath)
+            filepath += "/Resources/2.81/datafiles/brushes/"
+        if not os.path.exists(filepath):
+            os.mkdir(filepath)
+        with open(user_prefs, "w") as uPrefs:
+            uPrefs.write(filepath)
+    else:
+        with open(user_prefs) as prefs_file:
+            filepath = prefs_file.readline().strip()
+                
+
+    savepath: StringProperty(
+        name="Save Brush Path",
+        subtype='FILE_PATH',
+        default=filepath
+    )
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "savepath")
+        op = layout.operator('view3d.save_bmprefs', text="Save Brush Path")
+        op.user_prefs = self.user_prefs
+
+class Save_BMPrefs_OT_Operator(bpy.types.Operator):
+    bl_idname = "view3d.save_bmprefs"
+    bl_label = "Save Brush Manager Preferences"
+    bl_description = "Saves the Brush Manager preferences to a file in blender appdata directory"
+
+    user_prefs: bpy.props.StringProperty()
+
+    def execute(self, context):
+        preferences = context.preferences
+        addon_prefs = preferences.addons[__name__].preferences
+        filepath = addon_prefs.savepath
+
+        if not os.path.exists(filepath):
+            os.mkdir(filepath)
+            with open(self.user_prefs, "w") as uPrefs:
+                uPrefs.writelines(filepath)
+        else:
+            with open(self.user_prefs, "w") as uPrefs:
+                uPrefs.writelines(filepath)
+        return {'FINISHED'}
 
 addon_keymaps = []
 
 def register():
+    bpy.utils.register_class(Save_BMPrefs_OT_Operator)
+    bpy.utils.register_class(CustomBrushManagerPreferences)
     bpy.utils.register_class(Load_Brushes_OT_Operator)
     bpy.utils.register_class(Save_Brushes_OT_Operator)
     bpy.types.VIEW3D_MT_brush_context_menu.append(menu_draw)
@@ -44,6 +109,8 @@ def register():
     addon_keymaps.append((km, kmi))
 
 def unregister():
+    bpy.utils.unregister_class(Save_BMPrefs_OT_Operator)
+    bpy.utils.unregister_class(CustomBrushManagerPreferences)
     bpy.utils.unregister_class(Load_Brushes_OT_Operator)
     bpy.utils.unregister_class(Save_Brushes_OT_Operator)
     bpy.types.VIEW3D_MT_brush_context_menu.remove(menu_draw)
