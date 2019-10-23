@@ -13,13 +13,12 @@
 
 bl_info = {
     "name" : "Custom Brush Manager",
+    "category" : "3D View",
     "author" : "Abinadi Cordova",
     "description" : "This addon will auto-load custom brushes in datafiles/brushes and give quick custom brush shave capabilities",
     "blender" : (2, 80, 0),
     "version" : (0, 0, 1),
-    "location" : "View3D",
-    "warning" : "",
-    "category" : "3D View"
+    "location" : "3D View > Shift-Space",
 }
 
 import bpy
@@ -35,8 +34,6 @@ def register():
     bpy.types.VIEW3D_MT_brush_context_menu.append(menu_draw)
     bpy.app.handlers.load_post.append(load_custom_brushes_handler)
     bpy.types.TOPBAR_MT_file.prepend(load_menu_draw)
-    bpy.utils.register_class(Brush_Menu_Items)
-    bpy.utils.register_class(BrushMenuCreatorOperator)
     bpy.utils.register_class(VIEW3D_MT_brush_main_menu)
     
     # register hotkeys
@@ -52,9 +49,7 @@ def unregister():
     bpy.types.VIEW3D_MT_brush_context_menu.remove(menu_draw)
     bpy.app.handlers.load_post.remove(load_custom_brushes_handler)
     bpy.types.TOPBAR_MT_file.remove(load_menu_draw)
-    bpy.utils.unregister_class(BrushMenuCreatorOperator)
     bpy.utils.unregister_class(VIEW3D_MT_brush_main_menu)
-    bpy.utils.unregister_class(Brush_Menu_Items)
     
     # unregister hotkeys
     for km, kmi in addon_keymaps:
