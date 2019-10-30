@@ -16,7 +16,7 @@ bl_info = {
     "category" : "3D View",
     "author" : "Abinadi Cordova",
     "description" : "This addon will auto-load custom brushes in datafiles/brushes and give quick custom brush shave capabilities",
-    "blender" : (2, 80, 0),
+    "blender" : (2, 82, 0),
     "version" : (0, 0, 1),
     "location" : "3D View > Shift-Space",
 }
@@ -34,19 +34,27 @@ from os import path
 class CustomBrushManagerPreferences(AddonPreferences):
     bl_idname = __name__
 
-    app_data = os.getenv('APPDATA')
-    user_prefs = app_data + '\\Blender Foundation\\Blender\\brush_manager.txt'
+    if platform == "linux" or platform == "linux2":
+        app_data = os.getenv('HOME')
+        user_prefs = app_data + '/.config/blender/brush_manager.txt'
+    elif platform == "darwin":
+        app_data = os.getenv('HOME')
+        user_prefs = app_data + '/Library/Application Support/Blender/brush_manager.txt'
+    elif platform == 'win32' or platform == 'cygwin':
+        app_data = os.getenv('APPDATA')
+        user_prefs = app_data + '\\Roaming\\Blender Foundation\\Blender\\brush_manager.txt'
     filepath = ""
 
     if not os.path.exists(user_prefs):
-        if platform == "win32":
-            filepath = "./"
-            filepath = os.path.abspath(filepath)
-            filepath += "\\2.81\\datafiles\\brushes\\"
-        if platform == "linux" or platform == "linux2" or platform == "darwin":
-            filepath = os.getcwd()
-            filepath = os.path.dirname(filepath)
-            filepath += "/Resources/2.81/datafiles/brushes/"
+        if platform == "win32" or platform == "cygwin":
+            app_data = os.getenv('APPDATA')
+            filepath = app_data + "\\Roaming\\Blender Foundation\\Blender\\brushes\\"
+        elif platform == "linux" or platform == "linux2":
+            app_data = os.getenv('HOME')
+            filepath = app_data + "/.config/blender/brushes/"
+        elif platform == "darwin":
+            app_data = os.getenv('HOME')
+            filepath = app_data + '/Library/Application Support/Blender/brushes/'
         if not os.path.exists(filepath):
             os.mkdir(filepath)
         with open(user_prefs, "w") as uPrefs:

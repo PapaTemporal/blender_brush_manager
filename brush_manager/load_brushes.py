@@ -19,7 +19,7 @@ from sys import platform
 class Load_Brushes_OT_Operator(bpy.types.Operator):
     bl_idname = "view3d.load_custom_brushes"
     bl_label = "Load Custom Brushes"
-    bl_description = "Load custom brushes from /2.81/datafiles/brushes"
+    bl_description = "Load custom brushes from location in preferences"
     
     def execute(self, context):
         preferences = context.preferences
