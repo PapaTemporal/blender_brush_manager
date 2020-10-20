@@ -6,7 +6,7 @@ This addon does the following:
 2. It adds a save option under the brush_context_menu (small arrow next to the icon of the brush in the properties window)
 - Each brush is saved as an individual file so it can be shared.
 - To share more than one, just zip them
-3. Finally, it enables a custom quick-menu (like the brush selector in zBrush) that shows all the builtin and custom brushes for quick access.
+3. Finally, it enables a custom quick-menu (like the brush selector in zBrush) that shows all the builtin and custom brushes for quick access. (Shift-Space)
 
 That's it! I do have more plans for the addon like: 1) Put the save option as an icon next to the "Add brush" option and just below the brush icon in the properties section. 2) Incorporate the quick menu into the actual toolbar instead of making my own menu.
 
