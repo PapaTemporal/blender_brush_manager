@@ -16,8 +16,8 @@ bl_info = {
     "category" : "3D View",
     "author" : "Abinadi Cordova",
     "description" : "This addon will auto-load custom brushes in datafiles/brushes and give quick custom brush shave capabilities",
-    "blender" : (2, 82, 0),
-    "version" : (0, 0, 1),
+    "blender" : (2, 91, 0),
+    "version" : (0, 0, 2),
     "location" : "3D View > Shift-Space",
 }
 
@@ -39,23 +39,33 @@ class CustomBrushManagerPreferences(AddonPreferences):
         user_prefs = app_data + '/.config/blender/brush_manager.txt'
     elif platform == "darwin":
         app_data = os.getenv('HOME')
-        user_prefs = app_data + '/Library/Application Support/Blender/brush_manager.txt'
+        user_prefs = app_data + '/Blender/brush_manager/brush_manager.conf'
     elif platform == 'win32' or platform == 'cygwin':
-        app_data = os.getenv('APPDATA')
-        user_prefs = app_data + '\\Roaming\\Blender Foundation\\Blender\\brush_manager.txt'
+        app_data = os.getenv('USERPROFILE')
+        user_prefs = app_data + '\\Blender\\brush_manager\\brush_manager.conf'
     filepath = ""
 
     if not os.path.exists(user_prefs):
         if platform == "win32" or platform == "cygwin":
-            app_data = os.getenv('APPDATA')
-            filepath = app_data + "\\Roaming\\Blender Foundation\\Blender\\brushes\\"
+            app_data = os.getenv('USERPROFILE')
+            root_filepath = app_data + "\\Blender\\"
+            mid_filepath = app_data + "\\Blender\\brush_manager\\"
+            filepath = app_data + "\\Blender\\brush_manager\\brushes\\"
         elif platform == "linux" or platform == "linux2":
             app_data = os.getenv('HOME')
+            root_filepath = app_data + "/.config/"
+            mid_filepath = app_data + "/.config/blender/"
             filepath = app_data + "/.config/blender/brushes/"
         elif platform == "darwin":
             app_data = os.getenv('HOME')
-            filepath = app_data + '/Library/Application Support/Blender/brushes/'
+            root_filepath = app_data + "/Blender/"
+            mid_filepath = app_data + "/Blender/brush_manager/"
+            filepath = app_data + '/Blender/brush_manager/brushes/'
         if not os.path.exists(filepath):
+            if not os.path.exists(root_filepath):
+                os.mkdir(root_filepath)
+            if not os.path.exists(mid_filepath):
+                os.mkdir(mid_filepath)
             os.mkdir(filepath)
         with open(user_prefs, "w") as uPrefs:
             uPrefs.write(filepath)
@@ -89,6 +99,8 @@ class Save_BMPrefs_OT_Operator(bpy.types.Operator):
         filepath = addon_prefs.savepath
 
         if not os.path.exists(filepath):
+            if not filepath.endswith('/'):
+                filepath = filepath + '/'
             os.mkdir(filepath)
             with open(self.user_prefs, "w") as uPrefs:
                 uPrefs.writelines(filepath)
